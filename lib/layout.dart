@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nusantara_recipe/form.dart';
+import 'package:nusantara_recipe/my-recipe.dart';
 import 'package:nusantara_recipe/home.dart';
 import 'package:nusantara_recipe/profile.dart';
-import 'package:nusantara_recipe/save.dart';
+import 'package:nusantara_recipe/collection.dart';
 
 class Layout extends StatefulWidget {
   const Layout({super.key});
@@ -17,8 +17,8 @@ class _LayoutState extends State<Layout> {
   
   final List<Widget> _pages = <Widget>[
     const HomeScreen(),
-    const RecipeForm(),
-    const RecipeSave(),
+    const MyRecipe(),
+    const Collection(),
     const Profile()
   ];
 
@@ -31,28 +31,35 @@ class _LayoutState extends State<Layout> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: _onItemTapped,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.add),
-            label: 'Posting',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.playlist_add_outlined),
-            label: 'Simpan',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle_rounded),
-            label: 'Profile',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        height: 70,
+        child: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                label: '', // Label kosong
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.add_outlined),
+                label: '', // Label kosong
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.playlist_add_outlined),
+                label: '', // Label kosong
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.account_circle_outlined),
+                label: '', // Label kosong
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            showUnselectedLabels: false,
+            showSelectedLabels: false,
+            
+            type: BottomNavigationBarType.fixed,
+            iconSize: 27,
+            ),
       ),
       body: IndexedStack(
         index: _selectedIndex,

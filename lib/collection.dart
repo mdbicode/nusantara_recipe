@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class RecipeSave extends StatelessWidget {
-  const RecipeSave({super.key});
+class Collection extends StatelessWidget {
+  const Collection({super.key});
 
   @override
   Widget build(BuildContext context) {
