@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1019028710180",
+    "project_id": "nusantara-recipe",
+    "storage_bucket": "nusantara-recipe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019028710180:android:b2ca85cd5ba09a79cb89b1",
+        "android_client_info": {
+          "package_name": "com.nusantara.recipe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-eBpUgDP7mxDKiISyyIDQiU_b1twUlw0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
