@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:nusantara_recipe/auth/auth.dart';
 
-class Collection extends StatefulWidget {
-  const Collection({super.key});
+class CreateRecipe extends StatefulWidget {
+  const CreateRecipe({super.key});
 
   @override
-  State<Collection> createState() => _CollectionState();
+  State<CreateRecipe> createState() => _CreateRecipeState();
 }
 
-class _CollectionState extends State<Collection> {
+class _CreateRecipeState extends State<CreateRecipe> {
   final Auth _auth = Auth();
   @override
   Widget build(BuildContext context) {
@@ -31,24 +31,25 @@ class _CollectionState extends State<Collection> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Tidak ada resep yang tersimpan'),
+                Text('Simpan semua masakanmu dalam satu tempat'),
                 Container(
                   padding: EdgeInsets.all(10),
                   child: ElevatedButton(
                           onPressed: () {}, 
-                          child: const Text('Temukan resep lainnya'),
+                          child: const Text('Tulis Resep'),
                         ),
                 ),
               ],
             )
-            ),);
-}else{
-return Scaffold(
+            ),
+        );;
+        }else{
+          return Scaffold(
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Tidak ada resep yang tersimpan'),
+                Text('Simpan semua masakanmu dalam satu tempat'),
                 Container(
                   padding: EdgeInsets.all(10),
                   child: ElevatedButton(
@@ -60,7 +61,10 @@ return Scaffold(
                 ),
               ],
             )
-            ),);
+            ),
+        );
+        }
+      }
+    );
+  }
 }
-      });
-      }}

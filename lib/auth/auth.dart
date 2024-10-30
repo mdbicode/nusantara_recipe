@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+export 'package:firebase_auth/firebase_auth.dart';
 
 class Auth{
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -20,7 +21,7 @@ class Auth{
     required String email,
     required String password,
   }) async{
-    await _firebaseAuth.createUserWithEmailAndPassword(
+    await _firebaseAuth.signInWithEmailAndPassword(
       email: email, 
       password: password,
       );

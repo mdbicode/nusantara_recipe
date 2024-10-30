@@ -1,55 +1,138 @@
 import 'package:flutter/material.dart';
+import 'auth/auth.dart';
 
-class Profile extends StatelessWidget {
+
+class Profile extends StatefulWidget {
   const Profile({super.key});
 
   @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  final Auth _auth = Auth();
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: Icon(Icons.settings),
-        title: Text('Pengaturan'),
-      ),
-      body: Column(
-        children: [
-          Container(
-            color: Colors.grey[200],
-            padding: EdgeInsets.all(10),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: (){
-                  Navigator.pushNamed(context, '/login');
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(right: 10),
-                      child: Image.asset('/images/nasi-goreng.jpg',height: 150, width: 150,),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Masuk ke akunmu', style: TextStyle(fontSize: 18),),
-                        Text('Simpan dan posting resep, bagikan resep, dan lainnya.', style: TextStyle(fontSize: 12),),
-                      ],
-                    )
-                  ],
-                ),
-              ),
+    return StreamBuilder<User?>(
+      stream: _auth.authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        
+        if (snapshot.hasError) {
+          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+        }
+
+        if (snapshot.hasData) {
+
+          User? user = snapshot.data;
+          return Scaffold(
+            appBar: AppBar(
+              leading: Icon(Icons.settings),
+              title: Text('Pengaturan'),
             ),
-          ),
-          Container(
-            padding: EdgeInsets.all(15.0),
-            child: Row(
+            body: Column(
               children: [
-                Expanded(child:Text('Negara')),
-                Icon(Icons.navigate_next)
+                Container(
+                  color: Colors.grey[200],
+                  padding: EdgeInsets.all(10),
+                  child:  Row(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(right: 10),
+                            child: Image.asset('/images/nasi-goreng.jpg', height: 150, width: 150),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Selamat datang!', style: TextStyle(fontSize: 16)),
+                              Text('${user?.email}', style: TextStyle(fontSize: 20)),
+                              Text('Simpan dan posting resep, bagikan resep, dan lainnya.', style: TextStyle(fontSize: 12)),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                Container(
+                  padding: EdgeInsets.all(15.0),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Negara')),
+                      Icon(Icons.navigate_next),
+                     
+                    ],
+                    
+                  ),
+                ),
+                 Container(
+                  padding: EdgeInsets.all(15.0),
+                   child: Row(
+                     children: [
+                       Expanded(
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: _auth.signOut,
+                            child: Text('Logout')),
+                        )),
+                      Icon(Icons.navigate_next),
+                     ],
+                   ),
+                 ),
               ],
             ),
-          )
-        ],
-      ),
+          );
+        } else {
+
+          return Scaffold(
+            appBar: AppBar(
+              leading: Icon(Icons.settings),
+              title: Text('Pengaturan'),
+            ),
+            body: Column(
+              children: [
+                Container(
+                  color: Colors.grey[200],
+                  padding: EdgeInsets.all(10),
+                  child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                    child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                      child: Row(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(right: 10),
+                            child: Image.asset('/images/nasi-goreng.jpg', height: 150, width: 150),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Masuk ke akunmu', style: TextStyle(fontSize: 18)),
+                              Text('Simpan dan posting resep, bagikan resep, dan lainnya.', style: TextStyle(fontSize: 12)),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(15.0),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Negara')),
+                      Icon(Icons.navigate_next),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 }
