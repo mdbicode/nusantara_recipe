@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nusantara_recipe/auth/auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -8,11 +10,31 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String? errorMessage = '';
+  bool isLogin = true;
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  Future<void> signInWithEmailAndPassword() async {
+    try{
+      await Auth().signInWithEmailAndPassword(
+        email: _emailController.text, 
+        password: _passwordController.text
+        );
+        Navigator.of(context).pop();
+    } on FirebaseAuthException catch (e){
+      setState(() {
+        errorMessage = e.message;
+        Navigator.pushNamed(context, '/login', arguments: errorMessage);
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
+     final message = ModalRoute.of(context)?.settings.arguments as String?;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -25,6 +47,11 @@ class _LoginPageState extends State<LoginPage> {
     body: Center(
       child: Column(
         children: [
+          if (message != null)
+            Text(
+              message,
+              style: TextStyle(color: Colors.green, fontSize: 16),
+            ),
           Container(
             padding: EdgeInsets.only(top:20),
             child: Text('Masuk',style: TextStyle(fontSize: 24),)),
@@ -60,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 40,
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (){}, 
+                onPressed: signInWithEmailAndPassword, 
                 child: Text('Masuk'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange[400],

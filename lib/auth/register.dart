@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:nusantara_recipe/auth/auth.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,44 +10,29 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  String? errorMessage = '';
+  bool isLogin = true;
+
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  Future<void> registerUser() async {
-    try{
-    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-  await userCredential.user?.updateDisplayName(_nameController.text);
-  await userCredential.user?.reload();
-  ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: const Text("Pendaftaran berhasil")),
-    );
-
-  Navigator.pop(context); // Kembali ke halaman sebelumnya setelah mendaftar
-  } on FirebaseAuthException catch (e) {
-  print("Error code: ${e.code}"); // Menampilkan kode error di console
-  String errorMessage;
-  if (e.code == 'email-already-in-use') {
-    errorMessage = 'Email sudah terdaftar.';
-  } else if (e.code == 'weak-password') {
-    errorMessage = 'Kata sandi terlalu lemah.';
-  } else {
-    errorMessage = 'Terjadi kesalahan. Coba lagi.';
+ Future<void> createUserWithEmailAndPassword() async {
+  try{
+    await Auth().createUserWithEmailAndPassword(
+      email: _emailController.text, 
+      password: _passwordController.text
+      );
+      Navigator.pushNamed(context, '/login', arguments: 'Akun berhasil dibuat!');
+  } on FirebaseAuthException catch (e){
+    setState(() {
+      errorMessage = e.message;
+      Navigator.pushNamed(context, '/login', arguments: errorMessage);
+    });
   }
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(errorMessage)),
-  );
-}
-
-}
-  
+ }
 
 
   @override
@@ -121,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
               height: 40,
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: registerUser,
+                onPressed: createUserWithEmailAndPassword,
                 child: const Text('Daftar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange[400],
