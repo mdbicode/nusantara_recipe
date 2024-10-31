@@ -12,9 +12,16 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String? errorMessage = '';
   bool isLogin = true;
+  bool _obscureText = true;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   Future<void> signInWithEmailAndPassword() async {
     try{
@@ -29,12 +36,16 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pushNamed(context, '/login', arguments: errorMessage);
       });
     }
+    
   }
 
 
   @override
   Widget build(BuildContext context) {
      final message = ModalRoute.of(context)?.settings.arguments as String?;
+
+    
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -73,12 +84,19 @@ class _LoginPageState extends State<LoginPage> {
             padding: EdgeInsets.only(top:15.0),
             margin: EdgeInsets.symmetric(horizontal: 50.0),
             child: TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Password",
-                    ),
-                  ),
+                     controller: _passwordController,
+                        obscureText: _obscureText,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText ? Icons.visibility : Icons.visibility_off,
+                            ),
+                            onPressed: _togglePasswordVisibility,
+                          ),
+                        ),
+                      ),
           ),
           Container(
             padding: EdgeInsets.only(top:15.0),

@@ -12,12 +12,19 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   String? errorMessage = '';
   bool isLogin = true;
+  bool _obscureText = true;
 
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();  
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
  Future<void> createUserWithEmailAndPassword() async {
   try{
@@ -92,12 +99,19 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.only(top:15.0),
             margin: const EdgeInsets.symmetric(horizontal: 50.0),
             child: TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Password",
-                    ),
-                  ),
+                     controller: _passwordController,
+                        obscureText: _obscureText,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText ? Icons.visibility : Icons.visibility_off,
+                            ),
+                            onPressed: _togglePasswordVisibility,
+                          ),
+                        ),
+                      ),
           ),
           Container(
             padding: const EdgeInsets.only(top:15.0),

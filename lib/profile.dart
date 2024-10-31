@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nusantara_recipe/components/ishover.dart';
 import 'auth/auth.dart';
 
 
@@ -41,7 +42,7 @@ class _ProfileState extends State<Profile> {
                         children: [
                           Container(
                             margin: EdgeInsets.only(right: 10),
-                            child: Image.asset('/images/nasi-goreng.jpg', height: 150, width: 150),
+                            child: Icon(Icons.account_box,size: 120.0,)
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,32 +55,34 @@ class _ProfileState extends State<Profile> {
                         ],
                       ),
                     ),
-                Container(
-                  padding: EdgeInsets.all(15.0),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text('Negara')),
-                      Icon(Icons.navigate_next),
-                     
-                    ],
-                    
+                    IsHover(
+                      onTap: (){},
+                      child: Container(
+                    padding: EdgeInsets.all(15.0),
+                    child: Row(
+                        children: [
+                          Expanded(
+                            child: Text('Negara'),
+                          ),
+                          Icon(Icons.navigate_next),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                 Container(
-                  padding: EdgeInsets.all(15.0),
-                   child: Row(
-                     children: [
-                       Expanded(
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: _auth.signOut,
-                            child: Text('Logout')),
-                        )),
-                      Icon(Icons.navigate_next),
-                     ],
-                   ),
-                 ),
+                 IsHover(
+                      onTap: _auth.signOut,
+                      child: Container(
+                    padding: EdgeInsets.all(15.0),
+                    child: Row(
+                        children: [
+                          Expanded(
+                            child: Text('Logout'),
+                          ),
+                          Icon(Icons.navigate_next),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
@@ -105,7 +108,7 @@ class _ProfileState extends State<Profile> {
                         children: [
                           Container(
                             margin: EdgeInsets.only(right: 10),
-                            child: Image.asset('/images/nasi-goreng.jpg', height: 150, width: 150),
+                            child: Icon(Icons.account_box,size: 150.0,)
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,15 +120,6 @@ class _ProfileState extends State<Profile> {
                         ],
                       ),
                     ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(15.0),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text('Negara')),
-                      Icon(Icons.navigate_next),
-                    ],
                   ),
                 ),
               ],

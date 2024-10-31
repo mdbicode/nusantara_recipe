@@ -35,7 +35,9 @@ class _CreateRecipeState extends State<CreateRecipe> {
                 Container(
                   padding: EdgeInsets.all(10),
                   child: ElevatedButton(
-                          onPressed: () {}, 
+                          onPressed: () {
+                             Navigator.pushNamed(context, '/create-recipe');
+                          }, 
                           child: const Text('Tulis Resep'),
                         ),
                 ),

@@ -1,5 +1,6 @@
 // home.dart
 import 'package:flutter/material.dart';
+import 'package:nusantara_recipe/components/ishover.dart';
 import 'package:nusantara_recipe/components/search.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -19,23 +20,37 @@ class HomeScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: Text(
-                          'Mengikuti',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
+                        child: IsHover(
+                          onTap: () {},
+                          child: Container(
+                            padding: EdgeInsets.all(15.0), 
+                            alignment: Alignment.center, 
+                            child: Text(
+                              'Mengikuti',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
                       ),
+                      SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          'Inspirasi',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
+                        child: IsHover(
+                          onTap: () {},
+                          child: Container(
+                            padding: EdgeInsets.all(15.0), 
+                            alignment: Alignment.center, 
+                            child: Text(
+                              'Inspirasi',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
                       ),
                     ],
-                  ),
+                    ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 30, bottom: 10, left: 10),
