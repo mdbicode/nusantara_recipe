@@ -1,4 +1,4 @@
-package com.example.nusantara_recipe
+package com.nusantara.recipe
 
 import io.flutter.embedding.android.FlutterActivity
 
