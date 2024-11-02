@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nusantara_recipe/create-recipe.dart';
+import 'package:nusantara_recipe/recipe.dart';
 import 'package:nusantara_recipe/home.dart';
 import 'package:nusantara_recipe/profile.dart';
 import 'package:nusantara_recipe/collection.dart';
@@ -17,7 +17,7 @@ class _LayoutState extends State<Layout> {
   
   final List<Widget> _pages = <Widget>[
     const HomeScreen(),
-    const CreateRecipe(),
+    const Recipe(),
     const Collection(),
     const Profile()
   ];

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:nusantara_recipe/recipe/recipe_service.dart';
 
 class CreateRecipePage extends StatefulWidget {
   const CreateRecipePage({super.key});
@@ -10,10 +11,11 @@ class CreateRecipePage extends StatefulWidget {
 }
 
 class _CreateRecipePageState extends State<CreateRecipePage> {
-  final TextEditingController _namaResepController = TextEditingController();
-  final TextEditingController _deskripsiResepController = TextEditingController();
-  final TextEditingController _bahanController = TextEditingController();
-  final TextEditingController _langkahController = TextEditingController();
+  final RecipeService _recipeService = RecipeService();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _ingredientsController = TextEditingController();
+  final TextEditingController _stepsController = TextEditingController();
   File? _selectedImage;
 
   final ImagePicker _picker = ImagePicker();
@@ -26,6 +28,33 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
       });
     }
   }
+
+  void _submitRecipe() async {
+      final String name = _nameController.text;
+      final String description = _descriptionController.text;
+      final List<String> ingredients = _ingredientsController.text.split(',').map((ingredient) => ingredient.trim()).toList();
+      final List<String> steps = _stepsController.text.split('\n').map((step) => step.trim()).toList();
+      
+      String? imageUrl; // Variabel untuk menyimpan URL gambar
+
+      // if (_image != null) {
+      //   imageUrl = await _imageService.uploadImage(_image!);
+      // }
+
+      // Tambahkan resep ke Firestore dengan URL gambar (bisa null)
+      await _recipeService.addRecipe(name, description, ingredients, steps); // Jika imageUrl null, masukkan string kosong
+
+      // Bersihkan field
+      _nameController.clear();
+      _descriptionController.clear();
+      _ingredientsController.clear();
+      _stepsController.clear();
+      // setState(() {
+      //   _image = null; // Reset gambar setelah berhasil ditambahkan
+      // });
+      // Tampilkan pesan sukses
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Recipe added successfully!')));
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +123,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
-                  controller: _namaResepController,
+                  controller: _nameController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Nama Resep",
@@ -104,7 +133,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
-                  controller: _deskripsiResepController,
+                  controller: _descriptionController,
                   maxLines: 3,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -115,7 +144,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
-                  controller: _bahanController,
+                  controller: _ingredientsController,
                   maxLines: 5,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -127,7 +156,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
-                  controller: _langkahController,
+                  controller: _stepsController,
                   maxLines: 5,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -143,7 +172,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Action untuk menyimpan resep
+                      _submitRecipe();  
                     },
                     child: Text('Simpan Resep'),
                     style: ElevatedButton.styleFrom(
@@ -162,10 +191,10 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
 
   @override
   void dispose() {
-    _namaResepController.dispose();
-    _deskripsiResepController.dispose();
-    _bahanController.dispose();
-    _langkahController.dispose();
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _ingredientsController.dispose();
+    _stepsController.dispose();
     super.dispose();
   }
 }
