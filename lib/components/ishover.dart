@@ -4,12 +4,14 @@ class IsHover extends StatefulWidget {
   final Widget child;
   final Color hoverColor;
   final VoidCallback? onTap;
+  final double borderRadius; // Border radius as double
 
   const IsHover({
     Key? key,
     required this.child,
-    this.hoverColor = Colors.black12,
+    this.hoverColor =  const Color.fromARGB(28, 130, 130, 130),
     this.onTap,
+    this.borderRadius = 0.0, // Default value for border radius
   }) : super(key: key);
 
   @override
@@ -36,7 +38,10 @@ class _IsHoverState extends State<IsHover> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: Container(
-          color: _backgroundColor,
+          decoration: BoxDecoration(
+            color: _backgroundColor,
+            borderRadius: BorderRadius.circular(widget.borderRadius), // Use BorderRadius.circular
+          ),
           child: widget.child,
         ),
       ),

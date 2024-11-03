@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:nusantara_recipe/recipe/recipe_service.dart';
 
 class CreateRecipePage extends StatefulWidget {
@@ -30,6 +31,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
   }
 
   void _submitRecipe() async {
+      final String? userId = FirebaseAuth.instance.currentUser?.uid;
       final String name = _nameController.text;
       final String description = _descriptionController.text;
       final List<String> ingredients = _ingredientsController.text.split(',').map((ingredient) => ingredient.trim()).toList();
@@ -41,9 +43,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
       //   imageUrl = await _imageService.uploadImage(_image!);
       // }
 
-      // Tambahkan resep ke Firestore dengan URL gambar (bisa null)
-      await _recipeService.addRecipe(name, description, ingredients, steps); // Jika imageUrl null, masukkan string kosong
-
+      await _recipeService.addRecipe(name, description, ingredients, steps, userId);
       // Bersihkan field
       _nameController.clear();
       _descriptionController.clear();
