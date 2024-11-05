@@ -13,10 +13,11 @@ class _RegisterPageState extends State<RegisterPage> {
   String? errorMessage = '';
   bool isLogin = true;
   bool _obscureText = true;
+  final String? userId = FirebaseAuth.instance.currentUser?.uid;
 
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _numberController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();  
 
@@ -30,7 +31,9 @@ class _RegisterPageState extends State<RegisterPage> {
   try{
     await Auth().createUserWithEmailAndPassword(
       email: _emailController.text, 
-      password: _passwordController.text
+      password: _passwordController.text,
+      name: _nameController.text,
+      phone: _phoneController.text,
       );
       Navigator.pushNamed(context, '/login', arguments: 'Akun berhasil dibuat!');
   } on FirebaseAuthException catch (e){
@@ -77,7 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.only(top:15.0),
             margin: const EdgeInsets.symmetric(horizontal: 50.0),
             child: TextField(
-                    controller: _numberController,
+                    controller: _phoneController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Phone Number",
