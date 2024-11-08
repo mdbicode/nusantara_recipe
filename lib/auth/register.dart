@@ -27,22 +27,43 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
- Future<void> createUserWithEmailAndPassword() async {
-  try{
+Future<void> createUserWithEmailAndPassword() async {
+  try {
     await Auth().createUserWithEmailAndPassword(
       email: _emailController.text, 
       password: _passwordController.text,
       name: _nameController.text,
       phone: _phoneController.text,
-      );
-      Navigator.pushNamed(context, '/login', arguments: 'Akun berhasil dibuat!');
-  } on FirebaseAuthException catch (e){
-    setState(() {
-      errorMessage = e.message;
-      Navigator.pushNamed(context, '/login', arguments: errorMessage);
-    });
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Akun berhasil dibuat!')),
+    );
+    Navigator.pop(context);
+
+  } on FirebaseAuthException catch (e) {
+    String errorMessage = 'Terjadi kesalahan';
+
+    if (e.code == 'email-already-in-use') {
+      errorMessage = 'Email sudah terdaftar!';
+    } else if (e.code == 'weak-password') {
+      errorMessage = 'Password terlalu lemah!';
+    } else if (e.code == 'invalid-email') {
+      errorMessage = 'Email tidak valid!';
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(errorMessage)),
+    );
+
+  } catch (e) {
+    String errorMessage = 'Gagal membuat akun: $e';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(errorMessage)),
+    );
   }
- }
+}
+
+
 
 
   @override
