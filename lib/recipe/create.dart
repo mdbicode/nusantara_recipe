@@ -34,7 +34,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
       final String? userId = FirebaseAuth.instance.currentUser?.uid;
       final String name = _nameController.text;
       final String description = _descriptionController.text;
-      final List<String> ingredients = _ingredientsController.text.split(',').map((ingredient) => ingredient.trim()).toList();
+      final List<String> ingredients = _ingredientsController.text.split('\n').map((ingredient) => ingredient.trim()).toList();
       final List<String> steps = _stepsController.text.split('\n').map((step) => step.trim()).toList();
       
       String? imageUrl; // Variabel untuk menyimpan URL gambar
@@ -149,7 +149,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Bahan-Bahan",
-                    hintText: "Masukkan setiap bahan, pisahkan dengan koma",
+                    hintText: "Masukkan setiap bahan, pisahkan dengan titik",
                   ),
                 ),
               ),

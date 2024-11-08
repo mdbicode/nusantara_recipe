@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nusantara_recipe/recipe/detail.dart';
+import 'package:nusantara_recipe/recipe/edit.dart';
 import 'package:nusantara_recipe/recipe/recipe_service.dart';
 
 class Recipe extends StatefulWidget {
@@ -133,9 +134,15 @@ class _RecipeState extends State<Recipe> {
                                       IconButton(
                                         icon: const Icon(Icons.edit, color: Colors.blue),
                                         onPressed: () {
-                                          _showUpdateDialog(context, recipeId, recipeData);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => EditRecipePage(recipeId: recipeId),
+                                            ),
+                                          );
                                         },
                                       ),
+
                                       Text(
                                         '${recipeData['ingredients'].length} Bahan',
                                         style: const TextStyle(
@@ -230,73 +237,6 @@ class _RecipeState extends State<Recipe> {
                 });
               },
               child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Dialog untuk memperbarui resep
-  void _showUpdateDialog(BuildContext context, String recipeId, Map<String, dynamic> recipeData) {
-    final nameController = TextEditingController(text: recipeData['name']);
-    final descriptionController = TextEditingController(text: recipeData['description']);
-    final ingredientsController = TextEditingController(text: recipeData['ingredients'].join(', '));
-    final stepsController = TextEditingController(text: recipeData['steps'].join(', '));
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Perbarui Resep'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Nama Resep'),
-              ),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: 'Deskripsi'),
-              ),
-              TextField(
-                controller: ingredientsController,
-                decoration: const InputDecoration(labelText: 'Bahan (pisahkan dengan koma)'),
-              ),
-              TextField(
-                controller: stepsController,
-                decoration: const InputDecoration(labelText: 'Langkah (pisahkan dengan koma)'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Menutup dialog
-              },
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                List<String> ingredients = ingredientsController.text.split(',').map((ingredient) => ingredient.trim()).toList();
-                List<String> steps = stepsController.text.split(',').map((step) => step.trim()).toList();
-                String? userId = FirebaseAuth.instance.currentUser?.uid;
-
-                _recipeService.updateRecipe(
-                  recipeId,
-                  nameController.text,
-                  descriptionController.text,
-                  ingredients,
-                  steps,
-                  userId,
-                ).then((_) {
-                  Navigator.of(context).pop(); // Menutup dialog setelah memperbarui
-                }).catchError((error) {
-                  print('Error updating recipe: $error');
-                });
-              },
-              child: const Text('Perbarui'),
             ),
           ],
         );

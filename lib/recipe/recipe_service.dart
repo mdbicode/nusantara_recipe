@@ -52,6 +52,9 @@ class RecipeService {
     return recipesStream;
     }
     
+    Future<DocumentSnapshot> getRecipeById(String recipeId) async {
+    return await recipes.doc(recipeId).get();
+  }
     Stream<QuerySnapshot> getRecipesStreamById(String? userId){
       final recipesStream = recipes.where('userId', isEqualTo: userId).snapshots();
     
