@@ -29,11 +29,15 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text, 
         password: _passwordController.text
         );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Anda berhasil login")),
+        );
         Navigator.of(context).pop();
     } on FirebaseAuthException catch (e){
       setState(() {
-        errorMessage = e.message;
-        Navigator.pushNamed(context, '/login', arguments: errorMessage);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Anda salah memasukkan data!")),
+        );
       });
     }
     
