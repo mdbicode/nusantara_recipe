@@ -22,6 +22,12 @@ class DetailRecipePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            recipeData['imagePath'] != null && recipeData['imagePath'].isNotEmpty ?
+                            Container(
+                              child: Image.network(recipeData['imagePath'],width: double.infinity,height: 300.0,fit: BoxFit.cover,),
+                            margin: const EdgeInsets.only(right: 20),
+                            ):
+                            Text('No Image'),
             Text(
               recipeData['name'],
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

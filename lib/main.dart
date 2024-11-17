@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:nusantara_recipe/auth/login.dart';
 import 'package:nusantara_recipe/auth/register.dart';
 import 'package:nusantara_recipe/layout.dart';
+import 'package:appwrite/appwrite.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

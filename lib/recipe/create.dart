@@ -1,8 +1,12 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:nusantara_recipe/auth/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nusantara_recipe/recipe/recipe_service.dart';
+import 'dart:io';
+import 'package:appwrite/appwrite.dart';
+import 'dart:html' as html;
+import 'package:flutter/foundation.dart';
 
 class CreateRecipePage extends StatefulWidget {
   const CreateRecipePage({super.key});
@@ -17,56 +21,125 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _ingredientsController = TextEditingController();
   final TextEditingController _stepsController = TextEditingController();
-  File? _selectedImage;
+  Uint8List? _selectedImageBytes; // Untuk menyimpan byte gambar
+  XFile? _selectedImageFile; // Untuk file gambar di mobile
 
   final ImagePicker _picker = ImagePicker();
+  late final Client client;
+  late final Storage storage;
+  String? uploadedFileId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Konfigurasi Appwrite
+    client = Client()
+        .setEndpoint('http://localhost/v1') // Endpoint Appwrite
+        .setProject('67322ae0001f8cb9a9d6') // Ganti dengan Project ID Anda
+        .setSelfSigned(status: true);
+
+    storage = Storage(client);
+  }
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
+    if (kIsWeb) {
+      final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+      uploadInput.accept = 'image/*';
+      uploadInput.click();
+
+      uploadInput.onChange.listen((e) async {
+        final files = uploadInput.files;
+        if (files!.isEmpty) return;
+        final file = files[0];
+        final reader = html.FileReader();
+        reader.readAsArrayBuffer(file);
+
+        reader.onLoadEnd.listen((e) {
+          setState(() {
+            _selectedImageBytes = reader.result as Uint8List;
+            _selectedImageFile = XFile(file.name);
+          });
+        });
       });
+    } else {
+      // Untuk perangkat mobile menggunakan Image Picker
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final bytes = await pickedFile.readAsBytes();
+        setState(() {
+          _selectedImageBytes = bytes;
+          _selectedImageFile = pickedFile;
+        });
+      }
     }
   }
 
+  Future<String> uploadImageToAppwrite(Uint8List imageBytes, String fileName) async {
+
+    String imageUrl = "";
+      final uploadedFile = await storage.createFile(
+        bucketId: '67322b680007b602fe4b',
+        fileId: ID.unique(),
+        file: InputFile.fromBytes(
+          bytes: imageBytes,
+          filename: ID.unique(),
+        ),
+      );
+
+    setState(() {
+      imageUrl = 'http://localhost/v1/storage/buckets/67322b680007b602fe4b/files/${uploadedFile.$id}/view?project=67322ae0001f8cb9a9d6';
+    });
+
+    return imageUrl;
+  }
+
   void _submitRecipe() async {
-      final String? userId = FirebaseAuth.instance.currentUser?.uid;
-      final String name = _nameController.text;
-      final String description = _descriptionController.text;
-      final List<String> ingredients = _ingredientsController.text.split('\n').map((ingredient) => ingredient.trim()).toList();
-      final List<String> steps = _stepsController.text.split('\n').map((step) => step.trim()).toList();
-      
-      String? imageUrl; // Variabel untuk menyimpan URL gambar
+    String imageUrl = "";
 
-      // if (_image != null) {
-      //   imageUrl = await _imageService.uploadImage(_image!);
-      // }
-
-      await _recipeService.addRecipe(name, description, ingredients, steps, userId);
-      // Bersihkan field
-      _nameController.clear();
-      _descriptionController.clear();
-      _ingredientsController.clear();
-      _stepsController.clear();
-      // setState(() {
-      //   _image = null; // Reset gambar setelah berhasil ditambahkan
-      // });
-      // Tampilkan pesan sukses
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Recipe added successfully!')));
+    if (_selectedImageBytes != null && _selectedImageFile != null) {
+      imageUrl = await uploadImageToAppwrite(_selectedImageBytes!, _selectedImageFile!.name);
+      print("Image URL: $imageUrl");
     }
+
+    final String? userId = FirebaseAuth.instance.currentUser?.uid;
+    final String name = _nameController.text;
+    final String description = _descriptionController.text;
+    final List<String> ingredients = _ingredientsController.text.split('\n').map((ingredient) => ingredient.trim()).toList();
+    final List<String> steps = _stepsController.text.split('\n').map((step) => step.trim()).toList();
+
+    await _recipeService.addRecipe(
+      name: name,
+      description: description,
+      ingredients: ingredients,
+      steps: steps,
+      userId: userId,
+      imageUrl: imageUrl,
+    );
+
+    _nameController.clear();
+    _descriptionController.clear();
+    _ingredientsController.clear();
+    _stepsController.clear();
+
+    setState(() {
+      _selectedImageBytes = null;
+      _selectedImageFile = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Recipe added successfully!')));
+  }
 
   @override
   Widget build(BuildContext context) {
     final message = ModalRoute.of(context)?.settings.arguments as String?;
-    
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.navigate_before),
           onPressed: () {
             Navigator.pop(context);
-          }
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -94,16 +167,16 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: Text(
-                  'Jadikan resep masakanmu dikenal oleh banyak orang.'
+                  'Jadikan resep masakanmu dikenal oleh banyak orang.',
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
                 child: Column(
                   children: [
-                    if (_selectedImage != null)
-                      Image.file(
-                        _selectedImage!,
+                    if (_selectedImageBytes != null)
+                      Image.memory(
+                        _selectedImageBytes!,
                         height: 150,
                         width: 150,
                         fit: BoxFit.cover,
@@ -165,15 +238,12 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                   ),
                 ),
               ),
-              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      _submitRecipe();  
-                    },
+                    onPressed: _submitRecipe,
                     child: Text('Simpan Resep'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange[400],
@@ -182,7 +252,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                   ),
                 ),
               ),
-            ]
+            ],
           ),
         ),
       ),

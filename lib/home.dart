@@ -145,15 +145,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.deepOrange.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      padding: const EdgeInsets.all(10),
-                                      margin: const EdgeInsets.only(right: 16),
-                                      child: const Icon(Icons.book, size: 50.0, color: Colors.deepOrange),
-                                    ),
+                                    recipeData['imagePath'] != null && recipeData['imagePath'].isNotEmpty
+                                      ? Container(
+                                          margin: const EdgeInsets.only(right: 20),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(12),
+                                            child: Image.network(
+                                              recipeData['imagePath'],
+                                              width: 120.0,
+                                              height: 120.0,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.deepOrange.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(12),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey.withOpacity(0.2),
+                                                blurRadius: 4,
+                                                offset: Offset(2, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          padding: const EdgeInsets.all(10),
+                                        margin: const EdgeInsets.only(right: 20),
+                                        width: 120.0,
+                                        height: 120.0,
+                                        child: const Icon(
+                                          Icons.book,
+                                          size: 60.0,
+                                          color: Colors.deepOrange,
+                                        ),
+                                        ),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,6 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                               ),
+                            
                             ),
                           ),
                         );

@@ -1,34 +1,46 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:typed_data';   
+import 'package:cloud_firestore/cloud_firestore.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nusantara_recipe/main.dart';
 
 class RecipeService {
-
-  // Get Collection
   final CollectionReference recipes = FirebaseFirestore.instance.collection('recipes');
 
-  // Dialog
-  
-
-  // Add
-    Future<void> addRecipe( String name, String description,  List<String> ingredients, List<String> steps, String? userId){
-      return recipes.add({
-        'name' : name,
-        'description' : description,
-        'ingredients' : ingredients,
-        'steps' : steps,
-        'userId' : userId,
-        'timestamp': Timestamp.now(),
+  Future<void> addRecipe({
+  required String name,
+  required String description,
+  required List<String> ingredients,
+  required List<String> steps,
+  String? imageUrl,
+  String? userId,
+}) async {
+  try {
+    await recipes.add({
+      'name': name,
+      'description': description,
+      'ingredients': ingredients,
+      'steps': steps,
+      'userId': userId,
+      'imagePath': imageUrl,
+      'timestamp': Timestamp.now(),
     });
-    }
-    
-    // Update Recipe
-  Future<void> updateRecipe(String recipeId, String name, String description, List<String> ingredients, List<String> steps, String?  userId) async {
+
+    print('Resep berhasil ditambahkan!');
+  } catch (e) {
+    print("Terjadi kesalahan saat menambahkan resep: $e");
+  }
+}
+
+
+  // Fungsi untuk memperbarui resep di Firestore
+  Future<void> updateRecipe(String recipeId, String name, String description, List<String> ingredients, List<String> steps, String? userId) async {
     try {
       await recipes.doc(recipeId).update({
         'name': name,
         'description': description,
         'ingredients': ingredients,
         'steps': steps,
-         'userId' : userId,
+        'userId': userId,
         'timestamp': Timestamp.now(),
       });
     } catch (e) {
@@ -36,8 +48,8 @@ class RecipeService {
     }
   }
 
-
-     Future<void> deleteRecipe(String recipeId) async {
+  // Fungsi untuk menghapus resep di Firestore
+  Future<void> deleteRecipe(String recipeId) async {
     try {
       await recipes.doc(recipeId).delete();
     } catch (e) {
@@ -45,19 +57,18 @@ class RecipeService {
     }
   }
 
-  // READ 
-    Stream<QuerySnapshot> getRecipesStream(){
-      final recipesStream = recipes.orderBy('timestamp', descending: true).snapshots();
-    
-    return recipesStream;
-    }
-    
-    Future<DocumentSnapshot> getRecipeById(String recipeId) async {
+  // Fungsi untuk membaca stream resep dari Firestore
+  Stream<QuerySnapshot> getRecipesStream() {
+    return recipes.orderBy('timestamp', descending: true).snapshots();
+  }
+
+  // Fungsi untuk mendapatkan resep berdasarkan ID
+  Future<DocumentSnapshot> getRecipeById(String recipeId) async {
     return await recipes.doc(recipeId).get();
   }
-    Stream<QuerySnapshot> getRecipesStreamById(String? userId){
-      final recipesStream = recipes.where('userId', isEqualTo: userId).snapshots();
-    
-    return recipesStream;
-    }
+
+  // Fungsi untuk mendapatkan stream resep berdasarkan userId
+  Stream<QuerySnapshot> getRecipesStreamById(String? userId) {
+    return recipes.where('userId', isEqualTo: userId).snapshots();
   }
+}
