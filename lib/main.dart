@@ -1,32 +1,42 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:nusantara_recipe/recipe/create.dart';
-import 'firebase_options.dart';
-import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nusantara_recipe/auth/login.dart';
-import 'package:nusantara_recipe/auth/register.dart';
-import 'package:nusantara_recipe/layout.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:nusantara_recipe/app_routes.dart';
+import 'package:nusantara_recipe/layout.dart';
 
-void main() async {
+part 'main.g.dart';
+
+@riverpod
+Client appwriteClient (Ref ref){
+  final client = Client();
+  client.setEndpoint('http://localhost/v1')
+        .setProject('67322ae0001f8cb9a9d6')
+        .setSelfSigned(status: true);
+  return client;
+}
+
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
-}
+  runApp(
+    const ProviderScope(
+    child: MyApp(),
+  ));
+} 
 
-class MyApp extends StatelessWidget {
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-      routes: {
-        '/login': (context) => LoginPage(),
-        '/register': (context) => RegisterPage(),
-        '/create-recipe': (context) => CreateRecipePage(),
-      },
+      routes: appRoutes,
       theme: ThemeData(
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -37,7 +47,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       debugShowCheckedModeBanner: false,
-      home: const Layout(), // Panggil widget dari home.dart
+      home: const Layout(),
     );
   }
 }

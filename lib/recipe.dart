@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nusantara_recipe/recipe/detail.dart';
@@ -75,13 +76,13 @@ class _RecipeState extends State<Recipe> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Image or Icon
-                            recipeData['imagePath'] != null && recipeData['imagePath'].isNotEmpty
+                            recipeData['imageUrl'] != null && recipeData['imageUrl'].isNotEmpty
                               ? Container(
                                   margin: const EdgeInsets.only(right: 20),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
                                     child: Image.network(
-                                      recipeData['imagePath'],
+                                      recipeData['imageUrl'],
                                       width: 120.0,
                                       height: 120.0,
                                       fit: BoxFit.cover,
@@ -152,6 +153,7 @@ class _RecipeState extends State<Recipe> {
                                         label: const Text('Detail'),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.deepOrange,
+                                          foregroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(8),
                                           ),
@@ -161,7 +163,7 @@ class _RecipeState extends State<Recipe> {
                                       IconButton(
                                         icon: const Icon(Icons.delete, color: Colors.red),
                                         onPressed: () {
-                                          _showDeleteConfirmationDialog(context, recipeId);
+                                          _showDeleteConfirmationDialog(context, recipeId, recipeData['imageUrl']);
                                         },
                                       ),
                                       // Edit Button
@@ -247,34 +249,40 @@ class _RecipeState extends State<Recipe> {
     );
   }
 
-  // Dialog konfirmasi hapus
-  void _showDeleteConfirmationDialog(BuildContext context, String recipeId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Hapus Resep'),
-          content: const Text('Apakah Anda yakin ingin menghapus resep ini?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Menutup dialog
-              },
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                _recipeService.deleteRecipe(recipeId).then((_) {
-                  Navigator.of(context).pop(); // Menutup dialog setelah menghapus
-                }).catchError((error) {
-                  print('Error deleting recipe: $error');
-                });
-              },
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void _showDeleteConfirmationDialog(BuildContext context, String recipeId, String imageUrl) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Consumer(
+        builder: (context, ref, child) {
+          return AlertDialog(
+            title: const Text('Hapus Resep'),
+            content: const Text('Apakah Anda yakin ingin menghapus resep ini?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    Navigator.of(context).pop();
+                    await _recipeService.deleteImage(imageUrl, ref);
+                    await _recipeService.deleteRecipe(recipeId,ref);
+                  } catch (error) {
+                    print('Error deleting recipe: $error');
+                  }
+                },
+                child: const Text('Hapus'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 }

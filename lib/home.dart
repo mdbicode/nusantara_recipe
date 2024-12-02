@@ -145,13 +145,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    recipeData['imagePath'] != null && recipeData['imagePath'].isNotEmpty
+                                    recipeData['imageUrl'] != null && recipeData['imageUrl'].isNotEmpty
                                       ? Container(
                                           margin: const EdgeInsets.only(right: 20),
                                           child: ClipRRect(
                                             borderRadius: BorderRadius.circular(12),
                                             child: Image.network(
-                                              recipeData['imagePath'],
+                                              recipeData['imageUrl'],
                                               width: 120.0,
                                               height: 120.0,
                                               fit: BoxFit.cover,

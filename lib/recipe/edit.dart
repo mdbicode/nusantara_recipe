@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nusantara_recipe/appwrite_storage.dart';
+import 'package:nusantara_recipe/components/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:nusantara_recipe/recipe/recipe_service.dart';
+import 'dart:typed_data';
 
-class EditRecipePage extends StatefulWidget {
+class EditRecipePage extends ConsumerStatefulWidget {
   final String recipeId;
 
   const EditRecipePage({Key? key, required this.recipeId}) : super(key: key);
 
   @override
-  State<EditRecipePage> createState() => _EditRecipePageState();
+  _EditRecipePageState createState() => _EditRecipePageState();
 }
 
-class _EditRecipePageState extends State<EditRecipePage> {
-  final RecipeService _recipeService = RecipeService();
+class _EditRecipePageState extends ConsumerState<EditRecipePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _ingredientsController = TextEditingController();
   final TextEditingController _stepsController = TextEditingController();
-  File? _selectedImage;
-  final ImagePicker _picker = ImagePicker();
+  final RecipeService _recipeService = RecipeService();
 
   @override
   void initState() {
@@ -29,53 +29,69 @@ class _EditRecipePageState extends State<EditRecipePage> {
     _loadRecipe();
   }
 
+  
+  String? _imageUrl;
+
   Future<void> _loadRecipe() async {
-  try {
-    final recipeDoc = await _recipeService.getRecipeById(widget.recipeId);
-    
-    if (recipeDoc.exists) {
-      final recipeData = recipeDoc.data() as Map<String, dynamic>;
-      
-      setState(() {
-        
-        _nameController.text = recipeData['name'] ?? '';
-        _descriptionController.text = recipeData['description'] ?? '';
-        _ingredientsController.text = (recipeData['ingredients'] as List<dynamic>).join('\n');
-        _stepsController.text = (recipeData['steps'] as List<dynamic>).join('\n');
-      });
-    } else {
+    try {
+      final recipeDoc = await _recipeService.getRecipeById(widget.recipeId);
+
+      if (recipeDoc.exists) {
+        final recipeData = recipeDoc.data() as Map<String, dynamic>;
+        _imageUrl = recipeData['imageUrl'] ?? '';
+
+        setState(() {
+          _nameController.text = recipeData['name'] ?? '';
+          _descriptionController.text = recipeData['description'] ?? '';
+          _ingredientsController.text =
+              (recipeData['ingredients'] as List<dynamic>).join('\n');
+          _stepsController.text =
+              (recipeData['steps'] as List<dynamic>).join('\n');
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Resep tidak ditemukan.')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Recipe not found.'))
+        SnackBar(content: Text('Gagal memuat resep: $e')),
+      );
+    }
+  }
+
+
+  Future<void> _updateRecipe(WidgetRef ref) async {
+    String? imageUrl = ref.read(imageUrlProvider);
+
+    if (imageUrl == null || imageUrl.isEmpty) {
+      print("No image uploaded yet.");
+      return;
+    }
+
+    final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final updatedRecipe = Recipe(
+      _nameController.text.trim(),
+      _descriptionController.text.trim(),
+      _ingredientsController.text.split('\n').map((ingredient) => ingredient.trim()).where((ingredient) => ingredient.isNotEmpty).toList(),
+      _stepsController.text.split('\n').map((step) => step.trim()).where((step) => step.isNotEmpty).toList(),
+      userId,
+      imageUrl,
+      Timestamp.now(),
+    );
+
+    try {
+      await _recipeService.updateRecipe(widget.recipeId, updatedRecipe);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Resep berhasil diperbarui!')),
       );
       Navigator.pop(context);
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to load recipe: $e'))
-    );
-  }
-}
-
-
-  Future<void> _updateRecipe() async {
-    final String name = _nameController.text;
-    final String description = _descriptionController.text;
-    final List<String> ingredients = _ingredientsController.text.split('\n').map((e) => e.trim()).toList();
-    final List<String> steps = _stepsController.text.split('\n').map((e) => e.trim()).toList();
-    final String? userId = FirebaseAuth.instance.currentUser?.uid;
-
-    await _recipeService.updateRecipe(widget.recipeId, name, description, ingredients, steps, userId);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Recipe updated successfully!')));
-    Navigator.pop(context);
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memperbarui resep: $e')),
+      );
     }
   }
 
@@ -84,40 +100,35 @@ class _EditRecipePageState extends State<EditRecipePage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        title: const Text('Edit Resep'),
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Edit Resep Masakan Kamu!',
-                  style: TextStyle(fontSize: 24),
-                ),
-              ),
-              if (_selectedImage != null)
-                Image.file(
-                  _selectedImage!,
-                  height: 150,
-                  width: 150,
-                  fit: BoxFit.cover,
-                ),
-              ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: Icon(Icons.image),
-                label: Text('Unggah Gambar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange[400],
-                  foregroundColor: Colors.white,
+              const Padding(
+                padding:  EdgeInsets.only(top: 7, bottom: 5),
+                child: Center(
+                  child: Text(
+                    'Edit Resep Masakan Kamu!',
+                    style: TextStyle(fontSize: 24),
+                  ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+                child: Column(
+                  children: [
+                    ImagePickerWidget(oldImageUrl: _imageUrl),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -127,7 +138,7 @@ class _EditRecipePageState extends State<EditRecipePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
                   controller: _descriptionController,
                   maxLines: 3,
@@ -138,7 +149,7 @@ class _EditRecipePageState extends State<EditRecipePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
                   controller: _ingredientsController,
                   maxLines: 5,
@@ -150,7 +161,7 @@ class _EditRecipePageState extends State<EditRecipePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                 child: TextField(
                   controller: _stepsController,
                   maxLines: 5,
@@ -166,7 +177,11 @@ class _EditRecipePageState extends State<EditRecipePage> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _updateRecipe,
+                    onPressed: () async {
+                      await _recipeService.deleteImage(_imageUrl ,ref);
+                      await ref.read(imagePickerProvider.notifier).uploadImage(ref);
+                      _updateRecipe(ref);
+                    },
                     child: Text('Simpan Perubahan'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange[400],
@@ -181,6 +196,8 @@ class _EditRecipePageState extends State<EditRecipePage> {
       ),
     );
   }
+  
+
 
   @override
   void dispose() {
