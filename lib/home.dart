@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nusantara_recipe/components/ishover.dart';
 import 'package:nusantara_recipe/components/search.dart';
+import 'package:nusantara_recipe/following.dart';
 import 'package:nusantara_recipe/recipe/detail.dart';
-import 'package:nusantara_recipe/recipe/recipe_service.dart';
+import 'package:nusantara_recipe/service/recipe_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,11 +47,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Expanded(
                             child: IsHover(
-                              onTap: () {},
+                              onTap: () {
+                                    Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                            const FollowingPage() 
+                                          ),
+                                        );
+                              },
                               child: Container(
                                 padding: EdgeInsets.all(15.0),
                                 alignment: Alignment.center,
-                                child: Text(
+                                child: const Text(
                                   'Mengikuti',
                                   textAlign: TextAlign.center,
                                 ),
@@ -64,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Container(
                                 padding: EdgeInsets.all(15.0),
                                 alignment: Alignment.center,
-                                child: Text(
+                                child: const Text(
                                   'Inspirasi',
                                   textAlign: TextAlign.center,
                                 ),
@@ -74,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    Padding(
+                    const Padding(
                       padding: const EdgeInsets.only(top: 30, bottom: 10, left: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,10 +124,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    // Menampilkan semua resep
                     ListView.builder(
-                      shrinkWrap: true, // Agar ListView tidak membatasi ukuran
-                      physics: NeverScrollableScrollPhysics(), // Matikan scroll pada ListView
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
                       itemCount: recipeList.length,
                       itemBuilder: (context, index) {
                         final recipeData = recipeList[index].data() as Map<String, dynamic>;

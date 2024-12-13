@@ -3,14 +3,14 @@ import 'package:nusantara_recipe/components/ishover.dart';
 import 'auth/auth.dart';
 
 
-class Profile extends StatefulWidget {
-  const Profile({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<Profile> createState() => _ProfileState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfilePageState extends State<ProfilePage> {
   final Auth _auth = Auth();
   String? userName;
 

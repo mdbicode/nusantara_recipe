@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Recipe {
+class RecipeModel {
   final String name;
   final String description;
   final List<String> ingredients;
@@ -9,7 +9,7 @@ class Recipe {
   final String imageUrl;
   final Timestamp timestamp;
 
-  Recipe(
+  RecipeModel(
     this.name,
     this.description,
     this.ingredients,
@@ -19,7 +19,7 @@ class Recipe {
     this.timestamp,
   );
 
-  Recipe.fromJson(Map<String, dynamic> json)
+  RecipeModel.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String,
         description = json['description'] as String,
         ingredients = List<String>.from(json['ingredients'] as List),

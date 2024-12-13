@@ -7,7 +7,7 @@ import 'package:nusantara_recipe/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/foundation.dart';
-import 'package:nusantara_recipe/recipe/recipe_service.dart';
+import 'package:nusantara_recipe/service/recipe_service.dart';
 
 
 class CreateRecipePage extends ConsumerStatefulWidget {
@@ -51,7 +51,7 @@ class _CreateRecipePageState extends ConsumerState<CreateRecipePage> {
     }
 
     final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    final recipe = Recipe(
+    final recipe = RecipeModel(
       _nameController.text.trim(),
       _descriptionController.text.trim(),
       _ingredientsController.text.split('\n').map((ingredient) => ingredient.trim()).where((ingredient) => ingredient.isNotEmpty).toList(),
@@ -102,7 +102,7 @@ class _CreateRecipePageState extends ConsumerState<CreateRecipePage> {
                     style: TextStyle(color: Colors.green, fontSize: 16),
                   ),
                 ),
-              Padding(
+              const Padding(
                 padding: const EdgeInsets.only(top: 7, bottom: 5),
                 child: Center(
                   child: Text(
@@ -111,7 +111,7 @@ class _CreateRecipePageState extends ConsumerState<CreateRecipePage> {
                   ),
                 ),
               ),
-              Padding(
+              const Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: Text('Jadikan resep masakanmu dikenal oleh banyak orang.'),
               ),

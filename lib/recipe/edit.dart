@@ -4,7 +4,7 @@ import 'package:nusantara_recipe/appwrite_storage.dart';
 import 'package:nusantara_recipe/components/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:nusantara_recipe/recipe/recipe_service.dart';
+import 'package:nusantara_recipe/service/recipe_service.dart';
 import 'dart:typed_data';
 
 class EditRecipePage extends ConsumerStatefulWidget {
@@ -71,7 +71,7 @@ class _EditRecipePageState extends ConsumerState<EditRecipePage> {
     }
 
     final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    final updatedRecipe = Recipe(
+    final updatedRecipe = RecipeModel(
       _nameController.text.trim(),
       _descriptionController.text.trim(),
       _ingredientsController.text.split('\n').map((ingredient) => ingredient.trim()).where((ingredient) => ingredient.isNotEmpty).toList(),

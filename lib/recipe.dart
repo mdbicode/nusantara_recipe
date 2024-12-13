@@ -5,16 +5,16 @@ import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nusantara_recipe/recipe/detail.dart';
 import 'package:nusantara_recipe/recipe/edit.dart';
-import 'package:nusantara_recipe/recipe/recipe_service.dart';
+import 'package:nusantara_recipe/service/recipe_service.dart';
 
-class Recipe extends StatefulWidget {
-  const Recipe({super.key});
+class RecipePage extends StatefulWidget {
+  const RecipePage({super.key});
 
   @override
-  State<Recipe> createState() => _RecipeState();
+  State<RecipePage> createState() => _RecipePageState();
 }
 
-class _RecipeState extends State<Recipe> {
+class _RecipePageState extends State<RecipePage> {
   final Auth _auth = Auth();
   final RecipeService _recipeService = RecipeService();
 

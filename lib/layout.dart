@@ -17,9 +17,9 @@ class _LayoutState extends State<Layout> {
   
   final List<Widget> _pages = <Widget>[
     const HomeScreen(),
-    const Recipe(),
+    const RecipePage(),
     const Collection(),
-    const Profile()
+    const ProfilePage()
   ];
 
    void _onItemTapped(int index) {

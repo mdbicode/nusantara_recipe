@@ -3,21 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:nusantara_recipe/recipe/detail.dart';
+import 'package:nusantara_recipe/models/following_model.dart';
 import 'package:nusantara_recipe/service/favorites_service.dart';
-import 'package:nusantara_recipe/service/recipe_service.dart';
+import 'package:nusantara_recipe/service/following_service.dart';
 
-class Collection extends StatefulWidget {
-  const Collection({super.key});
+class FollowingPage extends StatefulWidget {
+  const FollowingPage({super.key});
 
   @override
-  State<Collection> createState() => _CollectionState();
+  State<FollowingPage> createState() => _FollowingPageState();
 }
 
-class _CollectionState extends State<Collection> {
+class _FollowingPageState extends State<FollowingPage> {
   final Auth _auth = Auth();
-  final RecipeService _recipeService = RecipeService();
-  final FavoritesService _favoriteService = FavoritesService();
+  final FollowingService _followingService = FollowingService();
 
   @override
   Widget build(BuildContext context) {
@@ -32,19 +31,19 @@ class _CollectionState extends State<Collection> {
           return _buildErrorScreen(snapshot.error);
         }
 
-        return snapshot.hasData ? _buildRecipeScreen() : _buildLoginPrompt();
+        return snapshot.hasData ? _buildfollowScreen() : _buildLoginPrompt();
       },
     );
   }
 
-  Widget _buildRecipeScreen() {
+  Widget _buildfollowScreen() {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Resep'),
+        title: const Text('Daftar Follow'),
       ),
       body: StreamBuilder<List<String>>(
-        stream: _favoriteService.getFavoriteRecipeIdsByUser(userId!),
+        stream: _followingService.getFollowingByUser(userId!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -56,39 +55,36 @@ class _CollectionState extends State<Collection> {
             );
           }
 
-          final recipeIdList = snapshot.data ?? [];
-
-          // Jika list kosong, tampilkan pesan
-          if (recipeIdList.isEmpty) {
+          final followIdList = snapshot.data ?? [];
+          if (followIdList.isEmpty) {
             return const Center(
               child: Text(
-                'Belum ada resep yang disukai.',
+                'Belum ada pengguna yang diikuti.',
                 style: TextStyle(fontSize: 16),
               ),
             );
           }
 
-          // Ambil data resep berdasarkan recipeId
           return FutureBuilder<List<Map<String, dynamic>>>(
-            future: _getRecipesByIds(recipeIdList),
-            builder: (context, recipeSnapshot) {
-              if (recipeSnapshot.connectionState == ConnectionState.waiting) {
+            future: _getUserByIds(followIdList),
+            builder: (context, followSnapshot) {
+              if (followSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              if (recipeSnapshot.hasError) {
+              if (followSnapshot.hasError) {
                 return Center(
-                  child: Text('Terjadi kesalahan: ${recipeSnapshot.error}'),
+                  child: Text('Terjadi kesalahan: ${followSnapshot.error}'),
                 );
               }
 
-              final recipes = recipeSnapshot.data ?? [];
+              final follows = followSnapshot.data ?? [];
 
               return ListView.builder(
-                itemCount: recipes.length,
+                itemCount: follows.length,
                 itemBuilder: (context, index) {
-                  final recipe = recipes[index];
-                  final recipeId = recipeIdList[index];
+                  final follow = follows[index];
+                  final followId = followIdList[index];
 
                   return Card(
                     elevation: 4,
@@ -107,7 +103,7 @@ class _CollectionState extends State<Collection> {
                         color: Colors.deepOrange,
                       ),
                       title: Text(
-                        recipe['name'] ?? 'Resep Tidak Diketahui', // Tampilkan judul resep
+                        follow['name'] ?? 'Follow Tidak Diketahui', // Tampilkan judul Follow
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -119,20 +115,12 @@ class _CollectionState extends State<Collection> {
                           _showDeleteConfirmationDialog(
                             context,
                             userId,
-                            recipeId,
+                            followId,
                           );
                         },
                       ),
                       onTap: () {
-                         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailRecipePage(
-                              recipeData: recipe, 
-                              recipeId: recipeId
-                              ),
-                          ),
-                        );
+                         
                       },
                     ),
                   );
@@ -145,18 +133,18 @@ class _CollectionState extends State<Collection> {
     );
   }
 
-  Future<List<Map<String, dynamic>>> _getRecipesByIds(List<String> recipeIds) async {
+  Future<List<Map<String, dynamic>>> _getUserByIds(List<String> followIds) async {
     try {
       final querySnapshot = await FirebaseFirestore.instance
-          .collection('recipes')
-          .where(FieldPath.documentId, whereIn: recipeIds)
+          .collection('users')
+          .where(FieldPath.documentId, whereIn: followIds)
           .get();
 
       return querySnapshot.docs.map((doc) {
         return doc.data() as Map<String, dynamic>;
       }).toList();
     } catch (e) {
-      print('Error fetching recipes: $e');
+      print('Error fetching follows: $e');
       return [];
     }
   }
@@ -191,15 +179,15 @@ class _CollectionState extends State<Collection> {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, String userId, String recipeId) {
+  void _showDeleteConfirmationDialog(BuildContext context, String userId, String followId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Consumer(
           builder: (context, ref, child) {
             return AlertDialog(
-              title: const Text('Hapus Resep'),
-              content: const Text('Apakah Anda yakin ingin menghapus resep ini?'),
+              title: const Text('Hapus Follow'),
+              content: const Text('Apakah Anda yakin ingin menghapus follow ini?'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -211,9 +199,9 @@ class _CollectionState extends State<Collection> {
                   onPressed: () async {
                     try {
                       Navigator.of(context).pop();
-                      await _favoriteService.favoriteRecipeDelete(userId, recipeId);
+                      await _followingService.followUserDelete(userId, followId);
                     } catch (error) {
-                      print('Error deleting recipe: $error');
+                      print('Error deleting follow: $error');
                     }
                   },
                   child: const Text('Hapus'),
