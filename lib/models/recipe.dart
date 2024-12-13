@@ -14,12 +14,11 @@ class Recipe {
     this.description,
     this.ingredients,
     this.steps,
-    this.userId,
+    this.userId, 
     this.imageUrl,
     this.timestamp,
   );
 
-  // Menambahkan fromJson untuk konversi data dari Firestore ke dalam objek Recipe
   Recipe.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String,
         description = json['description'] as String,
@@ -29,7 +28,6 @@ class Recipe {
         imageUrl = json['imageUrl'] as String,
         timestamp = json['timestamp'] as Timestamp;
 
-  // Menambahkan toJson untuk konversi objek Recipe ke dalam data yang bisa disimpan di Firestore
   Map<String, dynamic> toJson() {
     return {
       'name': name,

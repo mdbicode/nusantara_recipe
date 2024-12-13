@@ -20,10 +20,15 @@ class AppwriteStorage {
 
   Future<void> deleteImageFromAppwrite(String fileId, WidgetRef ref) async {
     final storage = ref.read(appwriteStorageProvider);
-    await storage.deleteFile(
-        bucketId: '67322b680007b602fe4b',
-        fileId: fileId,
-      );
+    const bucketId = '6755c062003997eafeaf';
+    try {
+    await storage.getFile(bucketId: bucketId, fileId: fileId);
+    
+    await storage.deleteFile(bucketId: bucketId, fileId: fileId);
+  } catch (e) {
+    return;
+  }
+  return;
   
   }
 
@@ -33,7 +38,7 @@ class AppwriteStorage {
   final uniqueId = ID.unique();
  
   final uploadedFile = await storage.createFile(
-    bucketId: '67322b680007b602fe4b',
+    bucketId: '6755c062003997eafeaf',
     fileId: uniqueId,
     file: InputFile.fromBytes(
       bytes: imageBytes,
@@ -41,7 +46,7 @@ class AppwriteStorage {
     ),
   );
 
-  String imageUrl = 'http://localhost/v1/storage/buckets/67322b680007b602fe4b/files/${uploadedFile.$id}/view?project=67322ae0001f8cb9a9d6';
+  String imageUrl = 'https://cloud.appwrite.io/v1/storage/buckets/6755c062003997eafeaf/files/${uploadedFile.$id}/view?project=67321b01003b0a385ebc&project=67321b01003b0a385ebc&mode=admin';
   
   return imageUrl;
 }

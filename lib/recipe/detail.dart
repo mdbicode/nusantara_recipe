@@ -1,19 +1,29 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:nusantara_recipe/auth/auth.dart';
+import 'package:nusantara_recipe/models/favorites_recipe.dart';
+import 'package:nusantara_recipe/recipe/recipe_service.dart';
 
 class DetailRecipePage extends StatelessWidget {
   final Map<String, dynamic> recipeData;
-
-  const DetailRecipePage({Key? key, required this.recipeData}) : super(key: key);
+  final String recipeId;
+  
+  const DetailRecipePage({Key? key, required this.recipeData, required this.recipeId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+  final _recipeService = RecipeService();
+  final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  final _addFavoriteRecipe = FavoritesRecipe(userId, [recipeId], Timestamp.now());
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepOrange,
         actions: <Widget>[
           Container(
             margin: const EdgeInsets.only(right: 10),
-            child: IconButton(onPressed: (){}, icon: const Icon(Icons.add_box))
+            child: IconButton(onPressed: (){
+              _recipeService.favoriteRecipe(_addFavoriteRecipe);
+            }, icon: const Icon(Icons.add_box))
             ),
         ],
       ),

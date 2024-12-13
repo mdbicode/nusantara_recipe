@@ -111,12 +111,10 @@ class _RecipeState extends State<Recipe> {
                                   color: Colors.deepOrange,
                                 ),
                                 ),
-                            // Recipe Details
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Recipe Name
                                   Text(
                                     recipeData['name'],
                                     style: const TextStyle(
@@ -126,7 +124,6 @@ class _RecipeState extends State<Recipe> {
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  // Description
                                   Text(
                                     recipeData['description'],
                                     style: TextStyle(
@@ -135,17 +132,15 @@ class _RecipeState extends State<Recipe> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  // Bottom Row with buttons and text
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      // Detail Button
                                       ElevatedButton.icon(
                                         onPressed: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => DetailRecipePage(recipeData: recipeData),
+                                              builder: (context) => DetailRecipePage(recipeData: recipeData, recipeId: recipeId),
                                             ),
                                           );
                                         },

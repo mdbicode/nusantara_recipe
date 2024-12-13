@@ -122,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: recipeList.length,
                       itemBuilder: (context, index) {
                         final recipeData = recipeList[index].data() as Map<String, dynamic>;
+                        final recipeId = recipeList[index].id;
                         return Container(
                           margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                           child: Card(
@@ -135,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => DetailRecipePage(recipeData: recipeData),
+                                            builder: (context) => DetailRecipePage(recipeData: recipeData, recipeId: recipeId,),
                                           ),
                                         );
                                       },

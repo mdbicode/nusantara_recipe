@@ -12,8 +12,8 @@ part 'main.g.dart';
 @riverpod
 Client appwriteClient (Ref ref){
   final client = Client();
-  client.setEndpoint('http://localhost/v1')
-        .setProject('67322ae0001f8cb9a9d6')
+  client.setEndpoint('https://cloud.appwrite.io/v1')
+        .setProject('67321b01003b0a385ebc')
         .setSelfSigned(status: true);
   return client;
 }
