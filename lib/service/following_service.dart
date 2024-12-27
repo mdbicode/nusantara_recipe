@@ -1,30 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:nusantara_recipe/auth/auth.dart';
 import 'package:nusantara_recipe/models/following_model.dart';
 
 class FollowingService {
 final CollectionReference following = FirebaseFirestore.instance.collection('following');
 
 Future<void> followUser(FollowingModel favorite) async {
+
   try {
     final userQuerySnapshot = await following
         .where('userId', isEqualTo: favorite.userId)
         .get();
-
+    if(favorite.userId == favorite.followId[0]){
+      return;
+    }
     if (userQuerySnapshot.docs.isNotEmpty) {
       final docRef = userQuerySnapshot.docs.first.reference;
       await docRef.update({
-        'recipeId': FieldValue.arrayUnion(favorite.followId),
+        'followId': FieldValue.arrayUnion(favorite.followId),
       });
     } else {
       await following.add(favorite.toJson());
     }
   } catch (e) {
-    print('Error while updating following: $e');
     return;
   }
 
 }
-Future<void> followUserDelete(String userId, String recipeId) async {
+Future<void> followUserDelete(String userId, String followId) async {
   try {
     await following
         .where('userId', isEqualTo: userId)
@@ -32,14 +35,12 @@ Future<void> followUserDelete(String userId, String recipeId) async {
         .then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
         doc.reference.update({
-          'recipeId': FieldValue.arrayRemove([recipeId]),
+          'followId': FieldValue.arrayRemove([followId]),
         });
       }
     });
-
-    print('Recipe ID removed successfully from the list');
   } catch (error) {
-    print('Error removing recipe ID: $error');
+    return;
   }
 
 }

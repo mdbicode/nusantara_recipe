@@ -4,8 +4,8 @@ import 'package:nusantara_recipe/appwrite_storage.dart';
 import 'package:nusantara_recipe/components/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:nusantara_recipe/components/transparent_appbar.dart';
 import 'package:nusantara_recipe/service/recipe_service.dart';
-import 'dart:typed_data';
 
 class EditRecipePage extends ConsumerStatefulWidget {
   final String recipeId;
@@ -98,102 +98,103 @@ class _EditRecipePageState extends ConsumerState<EditRecipePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Edit Resep'),
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(
-                padding:  EdgeInsets.only(top: 7, bottom: 5),
-                child: Center(
-                  child: Text(
-                    'Edit Resep Masakan Kamu!',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
-                child: Column(
-                  children: [
-                    ImagePickerWidget(oldImageUrl: _imageUrl),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
-                child: TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Nama Resep",
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
-                child: TextField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Deskripsi Resep",
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
-                child: TextField(
-                  controller: _ingredientsController,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Bahan-Bahan",
-                    hintText: "Masukkan setiap bahan, pisahkan dengan titik",
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
-                child: TextField(
-                  controller: _stepsController,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Langkah-Langkah",
-                    hintText: "Deskripsikan langkah-langkah pembuatan resep",
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await _recipeService.deleteImage(_imageUrl ,ref);
-                      await ref.read(imagePickerProvider.notifier).uploadImage(ref);
-                      _updateRecipe(ref);
-                    },
-                    child: Text('Simpan Perubahan'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange[400],
-                      foregroundColor: Colors.white,
+      body: Stack(
+        children:[ SingleChildScrollView(
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Padding(
+                  padding:  EdgeInsets.only(top: 30, bottom: 5),
+                  child: Center(
+                    child: Text(
+                      'Edit Resep Masakan Kamu!',
+                      style: TextStyle(fontSize: 24),
                     ),
                   ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+                  child: Column(
+                    children: [
+                      ImagePickerWidget(oldImageUrl: _imageUrl),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Nama Resep",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
+                  child: TextField(
+                    controller: _descriptionController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Deskripsi Resep",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
+                  child: TextField(
+                    controller: _ingredientsController,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Bahan-Bahan",
+                      hintText: "Masukkan setiap bahan, pisahkan dengan titik",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
+                  child: TextField(
+                    controller: _stepsController,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Langkah-Langkah",
+                      hintText: "Deskripsikan langkah-langkah pembuatan resep",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _recipeService.deleteImage(_imageUrl ,ref);
+                        await ref.read(imagePickerProvider.notifier).uploadImage(ref);
+                        _updateRecipe(ref);
+                      },
+                      child: Text('Simpan Perubahan'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[400],
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+         const Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: TransparentAppbar(opacityColor: 0.0, buttonColor: Colors.black,),
+                  ),
+      ]),
     );
   }
   

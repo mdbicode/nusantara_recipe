@@ -2,9 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nusantara_recipe/auth/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:nusantara_recipe/models/following_model.dart';
-import 'package:nusantara_recipe/service/favorites_service.dart';
 import 'package:nusantara_recipe/service/following_service.dart';
 
 class FollowingPage extends StatefulWidget {
@@ -40,7 +37,7 @@ class _FollowingPageState extends State<FollowingPage> {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Follow'),
+        title: const Text('Daftar Ikuti'),
       ),
       body: StreamBuilder<List<String>>(
         stream: _followingService.getFollowingByUser(userId!),
@@ -155,7 +152,7 @@ class _FollowingPageState extends State<FollowingPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Simpan semua masakanmu dalam satu tempat'),
+            const Text('Mulai ikuti koki yang hebat'),
             Container(
               padding: const EdgeInsets.all(10),
               child: ElevatedButton(

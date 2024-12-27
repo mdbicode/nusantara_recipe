@@ -40,7 +40,7 @@ class MyApp extends ConsumerWidget {
       theme: ThemeData(
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
+            shape: const  RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
               ),
             ),

@@ -1,9 +1,9 @@
-import 'dart:html' as html;
+import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
-import 'package:nusantara_recipe/appwrite_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:nusantara_recipe/appwrite_storage.dart';
 
 export 'package:image_picker/image_picker.dart';
 
@@ -13,9 +13,9 @@ class ImagePickerNotifier extends StateNotifier<Uint8List?> {
   final ImagePicker _picker = ImagePicker();
   final AppwriteStorage _appwriteStorage = AppwriteStorage();
   XFile? _selectedImageFile;
+  String? _selectedImageName;
 
-  Future<void> uploadImage( WidgetRef ref) async {
-    
+  Future<void> uploadImage(WidgetRef ref) async {
     if (state != null && _selectedImageFile != null) {
       final imageUrl = await _appwriteStorage.uploadImageToAppwrite(state!, _selectedImageFile!.name, ref);
       ref.read(imageUrlProvider.notifier).updateImageUrl(imageUrl);
@@ -23,35 +23,26 @@ class ImagePickerNotifier extends StateNotifier<Uint8List?> {
   }
 
   Future<void> pickImage() async {
-  if (kIsWeb) {
-    final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-    uploadInput.accept = 'image/*';
-    uploadInput.click();
-
-    uploadInput.onChange.listen((e) async {
-      final files = uploadInput.files;
-      if (files != null && files.isNotEmpty) {
-        final file = files[0];
-        final reader = html.FileReader();
-        reader.readAsArrayBuffer(file);
-
-        reader.onLoadEnd.listen((e) {
-          state = reader.result as Uint8List;
-          _selectedImageFile = XFile(file.name);
-        });
+    if (kIsWeb) {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final bytes = await pickedFile.readAsBytes();
+        state = bytes;
+        _selectedImageFile = pickedFile;
+        _selectedImageName = pickedFile.name;
       }
-    });
-  } else {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      final bytes = await pickedFile.readAsBytes();
-      state = bytes;
-      _selectedImageFile = pickedFile;
+    } else {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final bytes = await pickedFile.readAsBytes();
+        state = bytes;
+        _selectedImageFile = pickedFile;
+        _selectedImageName = pickedFile.name;
+      }
     }
   }
 }
 
-}
 class ImageUrlNotifier extends StateNotifier<String?> {
   ImageUrlNotifier() : super(null);
 
@@ -60,11 +51,9 @@ class ImageUrlNotifier extends StateNotifier<String?> {
   }
 }
 
-
 final imagePickerProvider = StateNotifierProvider<ImagePickerNotifier, Uint8List?>((ref) {
   return ImagePickerNotifier();
 });
-
 
 class ImagePickerWidget extends ConsumerWidget {
   final String? oldImageUrl;
@@ -78,7 +67,7 @@ class ImagePickerWidget extends ConsumerWidget {
     void _pickImage() {
       ref.read(imagePickerProvider.notifier).pickImage();
     }
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
       child: Column(

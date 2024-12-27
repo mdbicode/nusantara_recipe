@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nusantara_recipe/auth/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nusantara_recipe/recipe/detail.dart';
 import 'package:nusantara_recipe/recipe/edit.dart';
 import 'package:nusantara_recipe/service/recipe_service.dart';
@@ -62,55 +61,57 @@ class _RecipePageState extends State<RecipePage> {
                   itemCount: recipeList.length,
                   itemBuilder: (context, index) {
                     final recipeData = recipeList[index].data() as Map<String, dynamic>;
-                    final recipeId = recipeList[index].id; // Mendapatkan ID resep
+                    final recipeId = recipeList[index].id;
 
                     return Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailRecipePage(recipeData: recipeData, recipeId: recipeId),
+                          ),
+                        );
+                      },
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Image or Icon
+                            // Image
                             recipeData['imageUrl'] != null && recipeData['imageUrl'].isNotEmpty
-                              ? Container(
-                                  margin: const EdgeInsets.only(right: 20),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.network(
-                                      recipeData['imageUrl'],
-                                      width: 120.0,
-                                      height: 120.0,
-                                      fit: BoxFit.cover,
+                                ? Container(
+                                    margin: const EdgeInsets.only(right: 12),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        recipeData['imageUrl'],
+                                        width: 80.0, // Lebih kecil
+                                        height: 80.0,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.deepOrange.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    margin: const EdgeInsets.only(right: 12), // Margin lebih kecil
+                                    width: 80.0,
+                                    height: 80.0,
+                                    child: const Icon(
+                                      Icons.book,
+                                      size: 40.0, // Ikon lebih kecil
+                                      color: Colors.deepOrange,
                                     ),
                                   ),
-                                )
-                              : Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepOrange.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.2),
-                                        blurRadius: 4,
-                                        offset: Offset(2, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  padding: const EdgeInsets.all(10),
-                                margin: const EdgeInsets.only(right: 20),
-                                width: 120.0,
-                                height: 120.0,
-                                child: const Icon(
-                                  Icons.book,
-                                  size: 60.0,
-                                  color: Colors.deepOrange,
-                                ),
-                                ),
+                            // Text Content
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,24 +119,28 @@ class _RecipePageState extends State<RecipePage> {
                                   Text(
                                     recipeData['name'],
                                     style: const TextStyle(
-                                      fontSize: 22,
+                                      fontSize: 18, // Font lebih kecil
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 4), // Jarak lebih kecil
                                   Text(
                                     recipeData['description'],
                                     style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 13, // Font lebih kecil
                                       color: Colors.grey[700],
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis, // Batasi teks
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12), // Jarak lebih kecil
+                                  // Action Buttons
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      ElevatedButton.icon(
+                                      IconButton(
+                                        icon: const Icon(Icons.info_outline, size: 20), // Ikon lebih kecil
                                         onPressed: () {
                                           Navigator.push(
                                             context,
@@ -144,26 +149,9 @@ class _RecipePageState extends State<RecipePage> {
                                             ),
                                           );
                                         },
-                                        icon: const Icon(Icons.info_outline),
-                                        label: const Text('Detail'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.deepOrange,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
                                       ),
-                                      // Delete Button
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () {
-                                          _showDeleteConfirmationDialog(context, recipeId, recipeData['imageUrl']);
-                                        },
-                                      ),
-                                      // Edit Button
-                                      IconButton(
-                                        icon: const Icon(Icons.edit, color: Colors.blue),
+                                        icon: const Icon(Icons.edit, size: 20, color: Colors.blue), // Ikon lebih kecil
                                         onPressed: () {
                                           Navigator.push(
                                             context,
@@ -173,13 +161,11 @@ class _RecipePageState extends State<RecipePage> {
                                           );
                                         },
                                       ),
-                                      // Ingredients Count
-                                      Text(
-                                        '${recipeData['ingredients'].length} Bahan',
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete, size: 20, color: Colors.red), // Ikon lebih kecil
+                                        onPressed: () {
+                                          _showDeleteConfirmationDialog(context, recipeId, recipeData['imageUrl']);
+                                        },
                                       ),
                                     ],
                                   ),
@@ -188,9 +174,9 @@ class _RecipePageState extends State<RecipePage> {
                             ),
                           ],
                         ),
-                      ));
-                  
-                  },
+                      ),
+                    ),
+                  );},
                 ),
               ),
               Padding(

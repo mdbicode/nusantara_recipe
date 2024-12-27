@@ -62,7 +62,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               children: [
                                 Text('Selamat datang !', style: TextStyle(fontSize: 16)),
                                 Text('${userName}', style: TextStyle(fontSize: 20)),
-                                Text('Simpan dan posting resep, bagikan resep, dan lainnya.', style: TextStyle(fontSize: 12)),
+                                Container(
+                                  width: 200,
+                                  child: Text('Simpan dan posting resep, bagikan resep, dan lainnya.', style: TextStyle(fontSize: 12),softWrap: true,)
+                                  ),
                               ],
                             )
                           ],
@@ -71,8 +74,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       IsHover(
                         onTap: () {},
                         child: Container(
-                          padding: EdgeInsets.all(15.0),
-                          child: Row(
+                          padding: const EdgeInsets.all(15.0),
+                          child: const Row(
                             children: [
                               Expanded(
                                 child: Text('Negara'),

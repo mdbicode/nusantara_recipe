@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nusantara_recipe/components/ishover.dart';
-import 'package:nusantara_recipe/components/search.dart';
+import 'package:nusantara_recipe/components/header_search.dart';
 import 'package:nusantara_recipe/following.dart';
+import 'package:nusantara_recipe/inspiration.dart';
 import 'package:nusantara_recipe/recipe/detail.dart';
 import 'package:nusantara_recipe/service/recipe_service.dart';
 
@@ -15,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final RecipeService _recipeService = RecipeService();
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +40,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
-                    HeaderSearch(),
+                    HeaderSearch(
+                      onSearch: (query) {
+                        setState(() {
+                          _searchQuery = query;
+                        });
+                      },
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Row(
@@ -62,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: const Text(
                                   'Mengikuti',
                                   textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 16),
                                 ),
                               ),
                             ),
@@ -69,13 +77,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(width: 10),
                           Expanded(
                             child: IsHover(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                            const InspirationPage(initialQuery: '',) 
+                                          ),
+                                        );
+                              },
                               child: Container(
                                 padding: EdgeInsets.all(15.0),
                                 alignment: Alignment.center,
                                 child: const Text(
                                   'Inspirasi',
                                   textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 16),
                                 ),
                               ),
                             ),
@@ -84,10 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const Padding(
-                      padding: const EdgeInsets.only(top: 30, bottom: 10, left: 10),
+                      padding: EdgeInsets.only(top: 1, bottom: 10, left: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             "Apa isi kulkasmu?",
                             style: TextStyle(fontSize: 16),
@@ -126,99 +143,104 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: recipeList.length,
                       itemBuilder: (context, index) {
                         final recipeData = recipeList[index].data() as Map<String, dynamic>;
                         final recipeId = recipeList[index].id;
                         return Container(
                           margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                          child: Card(
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                            child: IsHover(
-                              onTap: (){
-                                    Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => DetailRecipePage(recipeData: recipeData, recipeId: recipeId,),
-                                          ),
-                                        );
-                                      },
-                              borderRadius: 10,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    recipeData['imageUrl'] != null && recipeData['imageUrl'].isNotEmpty
-                                      ? Container(
-                                          margin: const EdgeInsets.only(right: 20),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(12),
-                                            child: Image.network(
+                          child: SizedBox(
+                            height: 200,
+                            child: Card(
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                              child: IsHover(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailRecipePage(
+                                        recipeData: recipeData,
+                                        recipeId: recipeId,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                borderRadius: 10,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Stack(
+                                    children: [
+                                      // Background image
+                                      recipeData['imageUrl'] != null && recipeData['imageUrl'].isNotEmpty
+                                          ? Image.network(
                                               recipeData['imageUrl'],
-                                              width: 120.0,
-                                              height: 120.0,
+                                              width: double.infinity,
+                                              height: 200.0, // Atur tinggi sesuai kebutuhan
                                               fit: BoxFit.cover,
+                                            )
+                                          : Container(
+                                              width: double.infinity,
+                                              height: 200.0,
+                                              color: Colors.deepOrange.withOpacity(0.1),
+                                              child: const Icon(
+                                                Icons.book,
+                                                size: 60.0,
+                                                color: Colors.deepOrange,
+                                              ),
+                                            ),
+                                      // Caption overlay
+                                      Positioned(
+                                        bottom: 0, // Posisikan di bagian bawah
+                                        left: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(16.0),
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.black.withOpacity(0.7), // Warna gelap di bawah
+                                                Colors.transparent, // Transparan ke atas
+                                              ],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
                                             ),
                                           ),
-                                        )
-                                      : Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.deepOrange.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(12),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey.withOpacity(0.2),
-                                                blurRadius: 4,
-                                                offset: Offset(2, 4),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                recipeData['name'],
+                                                style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                recipeData['description'],
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.white70,
+                                                ),
                                               ),
                                             ],
                                           ),
-                                          padding: const EdgeInsets.all(10),
-                                        margin: const EdgeInsets.only(right: 20),
-                                        width: 120.0,
-                                        height: 120.0,
-                                        child: const Icon(
-                                          Icons.book,
-                                          size: 60.0,
-                                          color: Colors.deepOrange,
                                         ),
-                                        ),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            recipeData['name'],
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            recipeData['description'],
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[700],
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                        ],
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                            
                             ),
-                          ),
+                          )
+
                         );
                       },
                     ),
@@ -226,7 +248,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.all(10.0),
                       alignment: Alignment.center,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                            Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                            const InspirationPage(initialQuery: '',) 
+                                          ),
+                                        );
+                        },
                         child: const Text('Temukan ide lainnya'),
                       ),
                     ),

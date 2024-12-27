@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nusantara_recipe/auth/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nusantara_recipe/recipe/detail.dart';
 import 'package:nusantara_recipe/service/favorites_service.dart';
-import 'package:nusantara_recipe/service/recipe_service.dart';
 
 class Collection extends StatefulWidget {
   const Collection({super.key});
@@ -16,7 +14,6 @@ class Collection extends StatefulWidget {
 
 class _CollectionState extends State<Collection> {
   final Auth _auth = Auth();
-  final RecipeService _recipeService = RecipeService();
   final FavoritesService _favoriteService = FavoritesService();
 
   @override
@@ -58,7 +55,6 @@ class _CollectionState extends State<Collection> {
 
           final recipeIdList = snapshot.data ?? [];
 
-          // Jika list kosong, tampilkan pesan
           if (recipeIdList.isEmpty) {
             return const Center(
               child: Text(
